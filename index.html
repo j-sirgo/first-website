@@ -1,10 +1,73 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
     <title>My First Website</title>
   </head>
   <body>
     <h1>Hello World!</h1>
     <p>This is my very first website. Used in D3/React Course</p>
+
+    <!-- the chart is drawn inside this div -->
+    <div id="chart"></div>
+
+    <!-- load D3 from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+    <script>
+      const data = [
+        { name: "A", value: 1 },
+        { name: "B", value: 5 },
+        { name: "C", value: 8 },
+        { name: "D", value: 10 },
+      ];
+
+      // chart size, with margins to leave room for the axes
+      const width = 400;
+      const height = 300;
+      const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+
+      // create an svg element inside the #chart div
+      const svg = d3
+        .select("#chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      // x scale: one slot per name, with a gap between bars
+      const x = d3
+        .scaleBand()
+        .domain(data.map((d) => d.name))
+        .range([margin.left, width - margin.right])
+        .padding(0.2);
+
+      // y scale: turns a value into a vertical pixel position
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(data, (d) => d.value)])
+        .range([height - margin.bottom, margin.top]);
+
+      // draw one rectangle per data point
+      svg
+        .selectAll("rect")
+        .data(data)
+        .join("rect")
+        .attr("x", (d) => x(d.name))
+        .attr("y", (d) => y(d.value))
+        .attr("width", x.bandwidth())
+        .attr("height", (d) => y(0) - y(d.value))
+        .attr("fill", "steelblue");
+
+      // x axis along the bottom, y axis along the left
+      svg
+        .append("g")
+        .attr("transform", `translate(0, ${height - margin.bottom})`)
+        .call(d3.axisBottom(x));
+
+      svg
+        .append("g")
+        .attr("transform", `translate(${margin.left}, 0)`)
+        .call(d3.axisLeft(y));
+    </script>
   </body>
 </html>
